@@ -18,11 +18,13 @@ calculate the expression level for each exon or intron by using the base number
 ## usage
 
 ```bash
-./main_exp.sh -b <bamfile> -a <annotionfile> -e <Rscript>
+./main_exp.sh -b <bamfile> -a <annotionfile> -e <Rscript> -o <outputfile>
 ```
 
 ### options
 
 -b / --bam: bamfile;\
 -a / --annotation: annotation file which should cantain six columns and the fourth column should be the gene name;\
--e /--exp_script: Rscript to calculate the expression level (txp_exp_base.R or exon_exp_base.R).
+-e /--exp_script: Rscript to calculate the expression level (txp_exp_base.R or exon_exp_base.R); \
+-o / --output: output file name.
+
