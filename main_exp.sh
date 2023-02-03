@@ -21,8 +21,9 @@ do
 done
 
 ### bed12tobed6
-# bedtools bamtobed -bed12 -i ${i}.bam > ${i}.bed12
-# bedtools bed12tobed6 -i ${i}.bed12 > ${i}.bed6
+bedtools bamtobed -bed12 -i ${i}
+bedtools bamtobed -bed12 -i ${i} > $(basename ${i} ".bam").bed12
+bedtools bed12tobed6 -i $(basename ${i} ".bam").bed12 > $(basename ${i} ".bam").bed6
 
 ####---- intersect with anation ----####
 bedtools intersect -a $(basename ${i} ".bam").bed6 -b ${annotation} -wo | uniq \
