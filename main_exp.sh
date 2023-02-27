@@ -29,11 +29,11 @@ bedtools bed12tobed6 -i tmp/$(basename ${bam} ".bam").bed12 \
 ####---- intersect with anation ----####
 bedtools intersect -a tmp/$(basename ${bam} ".bam").bed6 \
     -b ${annotation} -wo | uniq \
-    > tmp/${bam}_$(basename ${annotation} ".bed").txt
+    > tmp/$(basename ${bam} ".bam")_$(basename ${annotation} ".bed").txt
 
 ### calculate the expression level
 Rscript ${exp_script} \
-    tmp/${bam}_$(basename ${annotation} ".bed").txt \
+    tmp/$(basename ${bam} ".bam")_$(basename ${annotation} ".bed").txt \
     tmp/$(basename ${bam} ".bam").bed6 \
     ${output} \
     ${annotation}
@@ -44,20 +44,20 @@ then
     ## sense
     bedtools intersect -a tmp/$(basename ${bam} ".bam").bed6 \
         -b ${annotation} -wo -s | uniq \
-        > tmp/${bam}_$(basename ${annotation} ".bed")_sense.txt
+        > tmp/$(basename ${bam} ".bam")_$(basename ${annotation} ".bed")_sense.txt
 
     Rscript ${exp_script} \
-        tmp/${bam}_$(basename ${annotation} ".bed")_sense.txt \
+        tmp/$(basename ${bam} ".bam")_$(basename ${annotation} ".bed")_sense.txt \
         tmp/$(basename ${bam} ".bam").bed6 \
         ${output}_sense \
         ${annotation}
     ## antisense
     bedtools intersect -a tmp/$(basename ${bam} ".bam").bed6 \
         -b ${annotation} -wo -S | uniq \
-        > tmp/${bam}_$(basename ${annotation} ".bed")_antisense.txt
+        > tmp/$(basename ${bam} ".bam")_$(basename ${annotation} ".bed")_antisense.txt
     
     Rscript ${exp_script} \
-        tmp/${bam}_$(basename ${annotation} ".bed")_antisense.txt \
+        tmp/$(basename ${bam} ".bam")_$(basename ${annotation} ".bed")_antisense.txt \
         tmp/$(basename ${bam} ".bam").bed6 \
         ${output}_antisense \
         ${annotation}
