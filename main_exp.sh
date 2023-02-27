@@ -12,7 +12,7 @@ usage() {
 while getopts b:a:e:o: OPT
 do
     case ${OPT} in
-        b) i=${OPTARG} ;;
+        b) bam=${OPTARG} ;;
         a) annotation=${OPTARG} ;;
         e) exp_script=${OPTARG} ;;
         o) output=${OPTARG} ;;
@@ -21,17 +21,44 @@ do
 done
 
 ### bed12tobed6
-bedtools bamtobed -bed12 -i ${i}
-bedtools bamtobed -bed12 -i ${i} > $(basename ${i} ".bam").bed12
-bedtools bed12tobed6 -i $(basename ${i} ".bam").bed12 > $(basename ${i} ".bam").bed6
+mkdir tmp
+bedtools bamtobed -bed12 -i ${bam} > tmp/$(basename ${bam} ".bam").bed12
+bedtools bed12tobed6 -i tmp/$(basename ${bam} ".bam").bed12 \
+    > tmp/$(basename ${bam} ".bam").bed6
 
 ####---- intersect with anation ----####
-bedtools intersect -a $(basename ${i} ".bam").bed6 -b ${annotation} -wo | uniq \
-    > exp/${i}_$(basename ${annotation} ".bed").txt
+bedtools intersect -a tmp/$(basename ${bam} ".bam").bed6 \
+    -b ${annotation} -wo | uniq \
+    > tmp/${bam}_$(basename ${annotation} ".bed").txt
 
 ### calculate the expression level
 Rscript ${exp_script} \
-    exp/${i}_$(basename ${annotation} ".bed").txt \
-    $(basename ${i} ".bam").bed6 \
+    tmp/${bam}_$(basename ${annotation} ".bed").txt \
+    tmp/$(basename ${bam} ".bam").bed6 \
     ${output} \
     ${annotation}
+
+### sense and antisense
+if [ $exp_script = "exon_exp_base.R" ] || [$exp_script = "txp_exon_base.R"];
+then
+    ## sense
+    bedtools intersect -a tmp/$(basename ${bam} ".bam").bed6 \
+        -b ${annotation} -wo -s | uniq \
+        > tmp/${bam}_$(basename ${annotation} ".bed")_sense.txt
+
+    Rscript ${exp_script} \
+        tmp/${bam}_$(basename ${annotation} ".bed")_sense.txt \
+        tmp/$(basename ${bam} ".bam").bed6 \
+        ${output}_sense \
+        ${annotation}
+    ## antisense
+    bedtools intersect -a tmp/$(basename ${bam} ".bam").bed6 \
+        -b ${annotation} -wo -S | uniq \
+        > tmp/${bam}_$(basename ${annotation} ".bed")_antisense.txt
+    
+    Rscript ${exp_script} \
+        tmp/${bam}_$(basename ${annotation} ".bed")_antisense.txt \
+        tmp/$(basename ${bam} ".bam").bed6 \
+        ${output}_antisense \
+        ${annotation}
+fi
